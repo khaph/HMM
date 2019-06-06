@@ -5,7 +5,7 @@ A = {}
 B = {}
 viterbi_vector = {}
 query = ""
-lang = "en"
+lang = "vn"
 
 
 def read_model():
@@ -76,7 +76,7 @@ def output():
     print(_output[::-1])
 
 
-query = "but you must have heard it said that the drawing-room disappeared forever with the somnolent years of James and the antic heyday of Coward .".split(
+query = "mèo là một huấn_luyện_viên chuyên_nghiệp".split(
     ' ')
 A, B = read_model()
 main_viterbi()

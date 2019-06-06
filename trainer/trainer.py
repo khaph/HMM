@@ -7,8 +7,7 @@ A = {}
 B = {}
 labels = {}
 texts = {}
-path = './dataset/en'
-
+path = './dataset/vn'
 
 def draw_progress_bar(title, percent, barLen=20):
     sys.stdout.write("\r"+title)
@@ -25,20 +24,25 @@ def draw_progress_bar(title, percent, barLen=20):
 def dataset_analyze():
     files = os.listdir(path)
     _sum = len(files)
-    _count = 1
+    _count = 0
+    _count_file = 0
+    _sum_sen = 0
+    _sum_word = 0
     for filename in files:
+        if _count_file == 80:
+            break
+        _count_file += 1
         draw_progress_bar("Init A, B: ", _count/_sum)
         _count += 1
         _f = open(path + "/" + filename, 'r')
-        data = _f.read().replace("\r\n",'').replace(".._",'.').split(' ')
-        # print(data)
+        lines = _f.readlines()
+        data = ' '.join(list(lines)).replace("\n",'').split(' ')
+        _sum_sen += len([i for i in data if i == "./."])
+        _sum_word += len(data)
         mem = "<s>"
         labels[mem] = 1
-        _count_dot = 0
         for s in data:
-            if _count_dot == 40000:
-                break
-            s = s.replace("._.",'').split('_')
+            s = s.split('/')
             if len(s) < 2:
                 break
             _temp1 = s[0]
@@ -46,7 +50,6 @@ def dataset_analyze():
             # print(_temp1,_temp2)
             # print(_temp1,_temp2)
             if _temp1 != '.':
-                _count_dot += 1
                 labels[_temp2] = 1
                 texts[_temp1] = 1
             # generate A
@@ -73,6 +76,7 @@ def dataset_analyze():
                 mem = _temp2
         _f.close()
 
+    return _sum_sen, _sum_word
 
 def smoothy():
     _t = len(labels)
@@ -100,7 +104,6 @@ def smoothy():
                 else:
                     B[l] = {s: 1}
 
-
 def count_sum():
     for i in A:
         _sum = 0
@@ -123,7 +126,8 @@ def generate_model():
         pickle.dump(model, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-dataset_analyze()
+_sen, _word = dataset_analyze()
 smoothy()
 count_sum()
 generate_model()
+print("\nSum of labels: ",len(B), "\nSum of words: ", _word, "\nSum of sen: ", _sen)
